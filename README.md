@@ -90,6 +90,40 @@ This model allows the e-commerce store to flag high-propensity sessions in real-
 
 ---
 
+## 🎯 Strategic Business Recommendations
+
+Based on the data warehouse findings, we propose five key business strategies to optimize conversion, reduce cart abandonment, and maximize profit margins:
+
+### 1. Checkout Localization for High-Volume Leakage (India Market)
+* **The Problem**: India represents your 2nd largest traffic channel (25.3K sessions) but suffers a catastrophic **98.99% dropoff** from Add-to-Cart to Completed Purchase.
+* **The Action**: 
+  * **Integrate Localized Gateways**: Deploy UPI (Unified Payments Interface), RuPay, and local net-banking options in the Indian region rather than relying solely on global credit card processors.
+  * **Transparent Landed Costs**: Show localized duties, taxes, and shipping costs upfront on the product page rather than introducing them at the final checkout step.
+
+### 2. Marketing Budget Redirection & Social Media Retargeting
+* **The Problem**: Social channels drive significant traffic (7.87% share) but yield a very low **0.42% conversion rate**. Conversely, Referral has a **12.19% conversion rate**.
+* **The Action**:
+  * **Shift Spends**: Reallocate top-of-funnel social acquisition spends to Referral channels or Organic Search SEO.
+  * **Retargeting Campaigns**: Transition social spend from broad branding to targeted, bottom-of-funnel retargeting ads focusing exclusively on "Cart Abandoners" identified by your BigQuery ML propensity model.
+
+### 3. Tiered Shipping thresholds to Counter Fee Friction
+* **The Problem**: High logistics costs (59.46% fee share in Venezuela, 25.26% in Indonesia) lead to severe checkout abandonment.
+* **The Action**:
+  * **Free Shipping Thresholds**: Implement a tiered threshold (e.g., *"Free shipping on international orders over $150"*). This absorbs shipping fees into product margins while raising Average Order Value (AOV).
+  * **Regional Warehousing**: Partner with regional fulfillment centers in Southeast Asia and South America to reduce base international shipping rates.
+
+### 4. Smart Cross-Selling Bundles (Nest-USA Anchoring)
+* **The Problem**: Nest-USA products generate **36.14%** of store revenue. Apparel and Office generate high volume but lower order values.
+* **The Action**:
+  * **Anchor Bundling**: Create "Smart Home Starter Bundles" where Nest purchases automatically offer discounted co-branded apparel or desk accessories. This leverages your highest-revenue category to clear high-volume accessory inventory.
+
+### 5. Real-Time Propensity-Based Promos (BQML Integration)
+* **The Problem**: Customers showing high purchase intent (high page views/time on site) exit without purchasing.
+* **The Action**:
+  * **Triggered Promotions**: Integrate your BQML propensity model scores with your web front-end. When a user with a propensity score of **>75%** shows exit-intent signals (e.g. cursor moving toward the window close button), trigger a real-time modal offering free shipping or a 10% coupon to secure the transaction.
+
+---
+
 ## 💻 How to View & Run the Project
 
 ### 🖥️ Power BI & Interactive Dashboard
