@@ -24,7 +24,7 @@ graph TD
 2. **Exploratory Data Analysis**: Jupyter Notebook [exploration.ipynb](exploration.ipynb) using GCP **BigFrames** to process data on cloud compute without RAM constraints.
 3. **Analytics Engineering**: Production-ready SQL queries structured with Common Table Expressions (CTEs), window functions, and pivoting in the [sql/](sql/) directory.
 4. **Predictive Modeling**: In-database logistic regression classifier utilizing **BigQuery ML (BQML)** to output customer propensity-to-buy scores.
-5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) mirroring the layout of a 4-page Power BI dashboard.
+5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) mirroring the layout of a 4-page Power BI dashboard. *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
 
 ---
 
@@ -92,10 +92,14 @@ This model allows the e-commerce store to flag high-propensity sessions in real-
 
 ## 💻 How to View & Run the Project
 
-### 1. The Interactive Dashboard
-Simply open [dashboard.html](dashboard.html) in any modern web browser.
-* No local server setup or database connection is required.
-* Toggle between tabs to inspect **Oveview & Channel Funnels**, **Geographical maps** (interactive popups via Leaflet), **Category Decomposition trees** (click-expandable nodes), and a searchable **Product Catalog**.
+### 🖥️ Power BI & Interactive Dashboard
+> [!NOTE]
+> **Power BI Dashboard Status**: 🛠️ Under Construction (Uploading tomorrow, July 18).
+>
+> In the meantime, you can open the interactive **[dashboard.html](dashboard.html)** in any web browser. It is a custom-built, premium replica that replicates the exact layouts, styling, metrics, and chart placements of the 4-page Power BI dashboard.
+
+* **How to run HTML dashboard**: Simply double-click [dashboard.html](dashboard.html) to open in any browser (no local server or database setup required).
+* **Interactions**: Toggle between tabs to inspect **Overview & Channel Funnels**, **Geographical Maps** (with Leaflet interactive popups), **Category Decomposition Trees** (with click-expandable nodes), and a searchable **Product Catalog**.
 
 ### 2. Running Python BigFrames Notebook
 Ensure you have Python installed, then:
