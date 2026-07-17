@@ -7,24 +7,32 @@ We analyze a massive Google Analytics dataset containing **21,493,109 user sessi
 
 ---
 
-## 🚀 Architecture Overview
+## 🚀 Architecture Overview & Data Warehouse Layers
 
 ```mermaid
 graph TD
     A[Google Cloud Platform] --> B(BigQuery Data Warehouse)
-    B --> C[Python BigFrames EDA]
-    B --> D[SQL Engineering & Modeling]
-    C --> E[exploration.ipynb]
-    D --> F[sql/ - Analytics Queries & BQML]
-    F --> G[Interactive HTML Dashboard]
-    F --> H[Power BI BI Dashboard]
+    B --> C[Raw Layer: GA clickstream logs]
+    C --> D[Staging Layer: cleaned transactions]
+    D --> E[Analytics Layer: Star Schema]
+    E --> F[FactSales, DimCustomer, DimProduct, DimDate, DimCountry]
+    E --> G[Python BigFrames EDA: exploration.ipynb]
+    E --> H[SQL Engineering: RFM & BQML Propensity]
+    G --> I[Interactive Dashboard: dashboard.html]
+    H --> I
 ```
 
-1. **Data Ingestion & Warehousing**: Structured schema mapping in Google BigQuery (`data-to-insights.ecommerce.all_sessions`).
-2. **Exploratory Data Analysis**: Jupyter Notebook [exploration.ipynb](exploration.ipynb) using GCP **BigFrames** to process data on cloud compute without RAM constraints.
-3. **Analytics Engineering**: Production-ready SQL queries structured with Common Table Expressions (CTEs), window functions, and pivoting in the [sql/](sql/) directory.
-4. **Predictive Modeling**: In-database logistic regression classifier utilizing **BigQuery ML (BQML)** to output customer propensity-to-buy scores.
-5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) mirroring the layout of a 4-page Power BI dashboard. *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
+The data warehouse is structured into three clear architectural layers:
+1. **Raw Layer**: Direct clickstream logs from the store (`data-to-insights.ecommerce.all_sessions`).
+2. **Staging Layer**: Sanitized, typed, and deduplicated transaction and session logs.
+3. **Analytics Layer (Star Schema)**: A dimensional model structured to optimize query speed and eliminate redundancy:
+   * **`FactSales`**: Relates price points, quantities, tax, shipping, and total revenue.
+   * **`DimCustomer`**: Normalizes visitor profiles and primary traffic sources.
+   * **`DimProduct`**: Splits category and subcategory hierarchies.
+   * **`DimCountry`**: Normalizes geographic coordinates and regional parameters.
+   * **`DimDate`**: Structures year, month, day, and day-of-week keys.
+4. **Exploratory Data Analysis**: Jupyter Notebook [exploration.ipynb](exploration.ipynb) leveraging GCP **BigFrames** for in-database Python execution.
+5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) mirroring the layout of a 5-page Power BI dashboard (featuring a newly added Executive & ML propensity page). *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
 
 ---
 
@@ -32,6 +40,8 @@ graph TD
 
 ```
 ├── sql/
+│   ├── star_schema_definition.sql      # Data Warehouse layers (Raw, Staging, Star Schema Fact/Dims)
+│   ├── customer_segmentation_rfm.sql   # RFM loyalty scoring & LTV tier customer segment models
 │   ├── funnel_analysis.sql             # Channel conversion & matrix funnel queries
 │   ├── country_friction_analysis.sql   # Regional conversion rates & fee friction (shipping/tax)
 │   ├── category_hierarchy_analysis.sql # Hierarchical category splits & decomposition tree queries

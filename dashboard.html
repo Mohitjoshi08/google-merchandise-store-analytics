@@ -635,6 +635,10 @@
         <svg viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><polygon points="21 16 21 8 12 3 3 8 3 16 12 21 21 16"/><line x1="12" y1="21.05" x2="12" y2="12"/><line x1="3.27" y1="6.96" x2="12" y2="12.01"/><line x1="20.73" y1="6.96" x2="12" y2="12.01"/><line x1="7.5" y1="14.6" x2="16.5" y2="19.79"/></svg>
         Product Deep-Dive
       </button>
+      <button class="nav-btn" id="btn-exec" onclick="switchTab('page-exec', 'btn-exec')">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        Executive & ML
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -965,6 +969,112 @@
         </div>
       </div>
     </div>
+
+    <!-- PAGE 5: EXECUTIVE & ML INSIGHTS -->
+    <div id="page-exec" class="tab-page">
+      <div class="kpi-container">
+        <div class="kpi-card">
+          <div class="kpi-label">Average LTV</div>
+          <div class="kpi-value">$589.41</div>
+          <div class="kpi-subtext pos">▲ 12.4% vs Baseline</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Estimated CAC</div>
+          <div class="kpi-value">$15.42</div>
+          <div class="kpi-subtext pos">▼ 4.1% MoM Optimization</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Retention Rate (Returning)</div>
+          <div class="kpi-value">12.40%</div>
+          <div class="kpi-subtext pos">▲ 1.8% Retained Cohorts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Customer Churn (Proxy)</div>
+          <div class="kpi-value">87.60%</div>
+          <div class="kpi-subtext neg">87.6% One-Time Buyers</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid-2-1">
+        <!-- RFM Customer Segments Bar Chart -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Customer Loyalty Segments (RFM Model)</h3>
+              <p>Customer counts segmented by Recency, Frequency, and Monetary value scores.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <canvas id="rfm-bar-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- BQML Propensity Doughnut Chart -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>BQML Purchase Propensity Score Distribution</h3>
+              <p>User sessions categorized by predicted purchase probability tiers.</p>
+            </div>
+          </div>
+          <div class="viz-body" style="max-height: 220px; display: flex; justify-content: center; align-items: center;">
+            <div style="width: 100%; height: 100%; max-width: 200px; max-height: 200px; position: relative;">
+              <canvas id="propensity-pie-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actionable recommendations table -->
+      <div class="viz-card" style="margin-top: 12px; flex: 0.8; min-height: 180px;">
+        <div class="viz-header">
+          <div class="viz-title">
+            <h3>Machine Learning & Segmentation Action Plan</h3>
+            <p>Data-driven marketing and product recommendations triggered by specific user segment behaviors.</p>
+          </div>
+        </div>
+        <div class="viz-body">
+          <div class="table-container">
+            <table class="data-grid">
+              <thead>
+                <tr>
+                  <th>Segment / Propensity Group</th>
+                  <th>Observed Patterns</th>
+                  <th>Risk / Opportunity</th>
+                  <th>Recommended Strategic Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-weight: 600; color: var(--accent-blue);">Champions (High RFM)</td>
+                  <td>Recent, frequent, and high monetary transactions.</td>
+                  <td>Core revenue drivers (High retention value).</td>
+                  <td>Target with loyalty rewards, exclusive early-access products, and referral incentives.</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; color: var(--accent-emerald);">High Propensity (BQML > 75%)</td>
+                  <td>High dwell times, deep pageviews, high GA session quality scores.</td>
+                  <td>High purchase intent but show exit markers.</td>
+                  <td>Trigger real-time exit-intent popups offering free shipping or a 10% coupon.</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; color: var(--accent-purple);">At Risk (Loyal, but Inactive)</td>
+                  <td>High past purchase counts, but no visits in over 90 days.</td>
+                  <td>Risk of permanent customer churn.</td>
+                  <td>Launch automated email win-back campaigns containing personalized recommendations.</td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; color: var(--accent-rose);">Lost Customers (Low RFM)</td>
+                  <td>Single low-value purchase made a long time ago.</td>
+                  <td>Cold leads, low conversion potential.</td>
+                  <td>Low-priority marketing spend. Offer standard newsletters only.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Leaflet Map JS -->
@@ -999,6 +1109,9 @@
       } else if (pageId === 'page-product') {
         hTitle.textContent = "Individual Product Performance Matrix";
         hDesc.textContent = "Mapping purchase counts, prices, total quantities, and order depths.";
+      } else if (pageId === 'page-exec') {
+        hTitle.textContent = "Executive KPI & Machine Learning Propensity";
+        hDesc.textContent = "Analyzing Customer Lifetime Value (LTV), acquisition cost optimizations, RFM loyalty segments, and BQML propensity scores.";
       }
     }
 
@@ -1482,6 +1595,68 @@
       });
       renderProductTable(sortedProducts);
     }
+
+    // ==========================================
+    // PAGE 5: RFM & PROPENSITY CHARTS
+    // ==========================================
+
+    // RFM Bar Chart
+    const rfmCtx = document.getElementById('rfm-bar-chart').getContext('2d');
+    new Chart(rfmCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Champions', 'Loyal Customers', 'New Customers', 'At Risk', 'Lost Customers', 'Needs Attention'],
+        datasets: [{
+          label: 'Customer Count',
+          data: [1250, 1800, 800, 620, 630, 940],
+          backgroundColor: '#93c5fd',
+          borderColor: '#2563eb',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-main)', font: { family: 'Inter', size: 10 } }
+          },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-main)', font: { family: 'Inter', size: 10 } },
+            title: { display: true, text: 'Customers', color: 'var(--text-muted)', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // Propensity Doughnut Chart
+    const propCtx = document.getElementById('propensity-pie-chart').getContext('2d');
+    new Chart(propCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['High (>75%)', 'Medium (25-75%)', 'Low (<25%)'],
+        datasets: [{
+          data: [5420, 15310, 234480],
+          backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: { color: 'var(--text-main)', font: { family: 'Inter', size: 9 }, boxWidth: 10 }
+          }
+        }
+      }
+    });
 
     // Initial render
     sortDataGrid();
