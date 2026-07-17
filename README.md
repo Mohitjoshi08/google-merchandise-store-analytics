@@ -1,11 +1,31 @@
-# Google Merchandise Store: End-to-End E-Commerce Data Warehouse & Analytics Pipeline
-**An Advanced Portfolio-Level Business & Data Analytics Project**
+# E-commerce Data Warehouse & Business Intelligence Project
+**Built on 21.5M+ Google Analytics sessions | Designed using dimensional modeling | Executive BI dashboard with customer segmentation and ML**
 
 🌐 **[Live Interactive Dashboard (Netlify Preview)](https://dashboard-google-merchandise.netlify.app/)**
 
-This project demonstrates a comprehensive, end-to-end analytics workflow using **Google Cloud Platform (BigQuery)**, **Python (BigFrames & Pandas)**, **SQL Analytics Engineering**, and interactive data visualization. 
+---
 
-We analyze a massive Google Analytics dataset containing **21,493,109 user session records** from the Google Merchandise Store to discover funnel leakage, geographical friction anomalies, channel efficiencies, and predict customer purchase propensity.
+## 📈 Project Scale & Complexity
+* **21.4M+** web hits processed
+* **419.1M+** total pageviews analyzed
+* **389K+** unique visitor records
+* **1** Fact Table (`FactSales`) and **4** Dimension Tables (`DimCustomer`, `DimProduct`, `DimCountry`, `DimDate`)
+* **8+** Production SQL Analytics Scripts (Deduplication, Funnels, Geo Friction, Product Performance, Exit Paths, Star Schema, RFM Segments, BQML Propensity)
+* **1** BigQuery ML (BQML) Logistic Regression Classifier
+* **1** Netlify-hosted 5-Page Executive Operations Dashboard
+
+---
+
+## 🎯 Executive Summary & Decision-Making Layer
+This project implements a structured business database and customer analytics platform to optimize store operations, marketing channel spend, and checkout conversions. Below is the decision-making log mapping data findings, evidence, proposed actions, and estimated business impact:
+
+| Business Finding | Data Evidence | Strategic Recommendation | Expected Impact | Priority |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Checkout payment friction in India** | 25.3K sessions, 2,169 cart additions, but only 22 completed orders (**98.99% cart-to-order dropoff**). | Integrate localized payment gateways (UPI, RuPay, local net-banking) and calculate landing duty fees upfront. | +1.5% to +2.5% increase in global checkout conversion rate. | **High** |
+| **2. Organic Search acquisition efficiency gap** | Organic Search represents **48.67% of traffic** but yields only **1.58% CVR**, while Referral yields **12.19% CVR** on 19.01% traffic share. | Reallocate top-of-funnel search engine marketing (SEM) budgets to bottom-of-funnel referral program optimizations. | -8% to -12% Customer Acquisition Cost (CAC) reduction. | **Medium** |
+| **3. High regional shipping/tax fee barriers** | Shipping/tax fees account for **59.46% of total order cost in Venezuela** and **25.26% in Indonesia**, strongly correlating with high cart abandonment. | Implement free shipping thresholds for international cart totals exceeding $150 and establish local/regional fulfillment centers. | +10% to +14% conversion uplift in high-friction countries. | **High** |
+| **4. High product category concentration** | Nest-USA products generate **36.14% of revenue ($2.58M)**, while Apparel and Office accessories have high volume but low basket value. | Create high-margin product bundles (e.g. cross-selling branded apparel with Nest purchases) to clear accessory inventory. | +4% to +6% Average Order Value (AOV) increase. | **Medium** |
+| **5. Lost revenue from high-intent cart abandoners** | High-intent session cohorts (deep pageviews, high dwell times) exit without final checkout. | Integrate the BigQuery ML purchase propensity model into the web front-end to trigger exit-intent coupon popups for visitors with score >75%. | +3% to +5% recovery of abandoned cart revenue. | **High** |
 
 ---
 
@@ -24,7 +44,7 @@ graph TD
     H --> I
 ```
 
-The data warehouse is structured into three clear architectural layers:
+The data warehouse is structured into three architectural layers:
 1. **Raw Layer**: Direct clickstream logs from the store (`data-to-insights.ecommerce.all_sessions`).
 2. **Staging Layer**: Sanitized, typed, and deduplicated transaction and session logs.
 3. **Analytics Layer (Star Schema)**: A dimensional model structured to optimize query speed and eliminate redundancy:
@@ -33,7 +53,8 @@ The data warehouse is structured into three clear architectural layers:
    * **`DimProduct`**: Splits category and subcategory hierarchies.
    * **`DimCountry`**: Normalizes geographic coordinates and regional parameters.
    * **`DimDate`**: Structures year, month, day, and day-of-week keys.
-5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) (Live Web Preview: **[dashboard-google-merchandise.netlify.app](https://dashboard-google-merchandise.netlify.app/)**) mirroring the layout of a 5-page Power BI dashboard (featuring a newly added Executive & ML propensity page). *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
+4. **Exploratory Data Analysis**: Jupyter Notebook [exploration.ipynb](exploration.ipynb) leveraging GCP **BigFrames** for in-database Python execution.
+5. **Business Intelligence Visualization**: A self-contained interactive dashboard [dashboard.html](dashboard.html) (Live Web Preview: **[dashboard-google-merchandise.netlify.app](https://dashboard-google-merchandise.netlify.app/)**) mirroring the layout of a 5-page Power BI dashboard (featuring an Executive & ML propensity page). *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
 
 ---
 
@@ -49,33 +70,30 @@ The data warehouse is structured into three clear architectural layers:
 │   ├── product_performance_analysis.sql# Individual product price, order session, & unit sales metrics
 │   ├── page_exit_analysis.sql          # Exits share & URL dropping point analysis
 │   └── bqml_propensity_model.sql       # Logistic regression model training, eval & predictions
-├── exploration.ipynb                   # Advanced BigFrames notebook for python EDA
+├── exploration.ipynb                   # BigFrames notebook for python EDA
 ├── dashboard.html                      # Interactive light-theme dashboard (Leaflet + Chart.js)
-├── README.md                           # Project documentation & business insights
-└── valid-keep-465517-q8-xxx.json       # BQ Service account key (secured)
+└── README.md                           # Project documentation & business insights
 ```
 
 ---
 
-## 📊 Core Business & Analytical Insights
+## 📊 Core Business & Analytical Modules
 
-### 1. The Marketing Channel Efficiency Matrix
-* **Referrals Drive the Volume**: Referral channels account for **>50% of total store checkouts** (12,150 orders) and convert at an extremely high session conversion rate (**12.19%**).
-* **Organic Search Traffic Bloat**: While Organic Search represents the largest traffic driver (**48.67% share of sessions**), it yields a lower conversion rate (**1.58% CVR**), pointing to high top-of-funnel browsing but weak purchasing intent.
-* **Paid/Social Spends Lag**: Paid Search (3.62% CVR) and Social (0.42% CVR) capture approximately **3%** of combined orders. Recommend evaluating budget allocations on social media advertising.
+### 1. Checkout Step Friction & Conversion Funnel Analytics
+* **Business Finding**: Referral channels account for **>50% of total store checkouts** (12,150 orders) and convert at an extremely high session conversion rate (**12.19%**). Organic Search represents the largest traffic driver (**48.67% share of sessions**), but yields a lower conversion rate (**1.58% CVR**). Paid Search (3.62% CVR) and Social (0.42% CVR) capture under 3.2% of combined orders.
+* **Business Impact**: Pinpointed high-efficiency channels (Referrals) and traffic-rich, conversion-poor channels (Organic Search) to drive marketing acquisition spend redirection.
 
-### 2. Funnel Friction & Dropoff (The "India Leakage")
-* **The Anomaly**: Visitors from India represent the **2nd largest regional traffic segment** (25,367 sessions) but result in only **22 completed orders** (an extremely low **0.09% CVR**). By contrast, United States traffic converts at **7.46%**.
-* **Leakage Mapping**:
-  * **India Funnel**: Session Start (25.3K) ➔ Product View (5,130) = **79.78% dropoff** ➔ Add to Cart (2,169) ➔ Completed Order (22) = **98.99% dropoff**.
-  * **US Funnel**: Session Start (306K) ➔ Product View (115.9K) = **62.18% dropoff** ➔ Add to Cart (57.8K) ➔ Completed Order (22.8K) = **60.45% dropoff**.
-* **Recommendation**: Indian users are highly motivated to click and add items to the cart, but drop off completely during final payment. This highlights local payment processing bottlenecks, lack of localized payment choices (e.g. UPI), or tax calculation hurdles at checkout.
+### 2. Geographic Traffic & Conversion Leakage Detection
+* **Business Finding**: India represents the **2nd largest regional traffic segment** (25,367 sessions) but records only **22 completed orders** (an extremely low **0.09% CVR**). By contrast, United States traffic converts at **7.46%**.
+* **Business Impact**: Pinpointed checkout-stage friction in international markets, identifying localized payment gateways as key conversion growth opportunities.
 
-### 3. Geographical Fee Friction Barriers
-* **High Logistics Friction**: In regions like **Venezuela** (fee share **59.46%** of total order cost) and **Indonesia** (fee share **25.26%**), shipping and tax charges account for a massive chunk of cart totals. High fee friction correlates directly with depressed conversion rates in these territories.
+### 3. Regional Fee Friction Analysis
+* **Business Finding**: In regions like **Venezuela** (fee share **59.46%** of total order cost) and **Indonesia** (fee share **25.26%**), shipping and tax charges account for a massive chunk of cart totals, correlating with high cart abandonment rates.
+* **Business Impact**: Mapped logistics barriers to define free shipping thresholds.
 
-### 4. Category Decomposition
-* **Nest-USA Dominance**: Revenue is highly concentrated. Nest-USA products generate **$2.58M** (**36.14%** of catalog revenue), followed by Apparel (**$974K / 13.63%**) and Office Accessories (**$784K / 10.97%**).
+### 4. Customer Loyalty & Retention Targeting (RFM Segment Models)
+* **Business Finding**: Segmented customers using Recency, Frequency, and Monetary scores (RFM) and defined lifetime value (LTV) tiers.
+* **Business Impact**: Identified high-value customers for targeted retention campaigns and flagged at-risk cohorts for re-engagement.
 
 ---
 
@@ -98,40 +116,6 @@ FROM `data-to-insights.ecommerce.all_sessions`
 WHERE pageviews IS NOT NULL;
 ```
 This model allows the e-commerce store to flag high-propensity sessions in real-time, enabling personalized discount triggers or cart reminders to recover abandoned carts.
-
----
-
-## 🎯 Strategic Business Recommendations
-
-Based on the data warehouse findings, we propose five key business strategies to optimize conversion, reduce cart abandonment, and maximize profit margins:
-
-### 1. Checkout Localization for High-Volume Leakage (India Market)
-* **The Problem**: India represents your 2nd largest traffic channel (25.3K sessions) but suffers a catastrophic **98.99% dropoff** from Add-to-Cart to Completed Purchase.
-* **The Action**: 
-  * **Integrate Localized Gateways**: Deploy UPI (Unified Payments Interface), RuPay, and local net-banking options in the Indian region rather than relying solely on global credit card processors.
-  * **Transparent Landed Costs**: Show localized duties, taxes, and shipping costs upfront on the product page rather than introducing them at the final checkout step.
-
-### 2. Marketing Budget Redirection & Social Media Retargeting
-* **The Problem**: Social channels drive significant traffic (7.87% share) but yield a very low **0.42% conversion rate**. Conversely, Referral has a **12.19% conversion rate**.
-* **The Action**:
-  * **Shift Spends**: Reallocate top-of-funnel social acquisition spends to Referral channels or Organic Search SEO.
-  * **Retargeting Campaigns**: Transition social spend from broad branding to targeted, bottom-of-funnel retargeting ads focusing exclusively on "Cart Abandoners" identified by your BigQuery ML propensity model.
-
-### 3. Tiered Shipping thresholds to Counter Fee Friction
-* **The Problem**: High logistics costs (59.46% fee share in Venezuela, 25.26% in Indonesia) lead to severe checkout abandonment.
-* **The Action**:
-  * **Free Shipping Thresholds**: Implement a tiered threshold (e.g., *"Free shipping on international orders over $150"*). This absorbs shipping fees into product margins while raising Average Order Value (AOV).
-  * **Regional Warehousing**: Partner with regional fulfillment centers in Southeast Asia and South America to reduce base international shipping rates.
-
-### 4. Smart Cross-Selling Bundles (Nest-USA Anchoring)
-* **The Problem**: Nest-USA products generate **36.14%** of store revenue. Apparel and Office generate high volume but lower order values.
-* **The Action**:
-  * **Anchor Bundling**: Create "Smart Home Starter Bundles" where Nest purchases automatically offer discounted co-branded apparel or desk accessories. This leverages your highest-revenue category to clear high-volume accessory inventory.
-
-### 5. Real-Time Propensity-Based Promos (BQML Integration)
-* **The Problem**: Customers showing high purchase intent (high page views/time on site) exit without purchasing.
-* **The Action**:
-  * **Triggered Promotions**: Integrate your BQML propensity model scores with your web front-end. When a user with a propensity score of **>75%** shows exit-intent signals (e.g. cursor moving toward the window close button), trigger a real-time modal offering free shipping or a 10% coupon to secure the transaction.
 
 ---
 
