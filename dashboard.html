@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Merchandise Store - Executive Dashboard</title>
+  <meta name="description" content="Minimalist light theme dashboard for Google Merchandise Store analytics. Viewport-constrained and designed for executive performance audits.">
+  
+  <!-- Inter Font from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-blue: #2563eb;
+      --accent-sky: #0ea5e9;
+      --accent-emerald: #10b981;
+      --accent-rose: #f43f5e;
+      --accent-purple: #7c3aed;
+      --sidebar-width: 240px;
+      --header-height: 60px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden; /* Absolutely locks the page scrolling */
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      display: flex;
+    }
+
+    /* Sidebar - Sleek White Panel */
+    aside {
+      width: var(--sidebar-width);
+      height: 100vh;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+      padding-left: 8px;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background-color: var(--accent-blue);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #ffffff;
+      font-size: 14px;
+    }
+
+    .brand-title h1 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .brand-title span {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      width: 100%;
+    }
+
+    .nav-btn:hover {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .nav-btn.active {
+      background-color: #eff6ff;
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    .nav-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* Main Frame */
+    main {
+      flex: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 24px 32px;
+      overflow: hidden; /* Ensures child containers govern scroll */
+    }
+
+    header {
+      flex-shrink: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+      height: var(--header-height);
+    }
+
+    .header-text h2 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .badge-gcp {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 550;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-gcp::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent-emerald);
+      border-radius: 50%;
+    }
+
+    /* Tab Page Controller */
+    .tab-page {
+      display: none;
+      flex: 1;
+      min-height: 0; /* Very important: allows container to shrink below content size */
+      flex-direction: column;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .tab-page.active {
+      display: flex;
+    }
+
+    /* KPI Cards row */
+    .kpi-container {
+      flex-shrink: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .kpi-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px 20px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+    }
+
+    .kpi-subtext {
+      font-size: 10px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      font-weight: 500;
+    }
+
+    .kpi-subtext.pos { color: var(--accent-emerald); }
+    .kpi-subtext.neg { color: var(--accent-rose); }
+    .kpi-subtext.info { color: var(--accent-blue); }
+
+    /* Dashboard grids */
+    .dashboard-grid-2-1 {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    .dashboard-grid-1-1 {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .dashboard-grid-3-column {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1.2fr;
+      gap: 20px;
+    }
+
+    /* Core Viz Cards */
+    .viz-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0; /* Let flex control height constraints */
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    }
+
+    .viz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+
+    .viz-title h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .viz-title p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    .viz-body {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      overflow-y: auto; /* Adds scrollbar only inside this card if needed */
+    }
+
+    /* Minimalist Tables */
+    .table-container {
+      overflow: auto;
+      height: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+    }
+
+    .data-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .data-grid th, .data-grid td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-grid th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: var(--text-muted);
+      position: sticky;
+      top: 0;
+      font-size: 10px;
+      text-transform: uppercase;
+      z-index: 10;
+      letter-spacing: 0.3px;
+    }
+
+    .data-grid tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-grid tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Funnel Matrix Heatmap style */
+    .heatmap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .heatmap-table th, .heatmap-table td {
+      padding: 8px 6px;
+      text-align: center;
+      border: 1px solid var(--border-color);
+    }
+
+    .heatmap-table th {
+      background-color: #f8fafc;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .heatmap-table td.stage-label {
+      text-align: left;
+      font-weight: 500;
+      color: var(--text-main);
+      background-color: #fafafa;
+      font-size: 11px;
+    }
+
+    /* Minimalist observations list */
+    .observations-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .obs-item {
+      padding: 10px 14px;
+      border-radius: 6px;
+      background-color: #f8fafc;
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .obs-item.organic { border-left-color: var(--accent-emerald); }
+    .obs-item.leakage { border-left-color: var(--accent-rose); }
+    .obs-item.lag { border-left-color: var(--accent-purple); }
+
+    .obs-content h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .obs-content p {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    /* Leaflet map Container styles */
+    #country-map {
+      height: 100%;
+      width: 100%;
+      border-radius: 6px;
+    }
+
+    /* Treemap Dynamic Grid Style */
+    .treemap-container {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(75px, auto);
+      gap: 8px;
+      height: 100%;
+    }
+
+    .treemap-node {
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ffffff;
+      font-weight: 600;
+      border: 1px solid rgba(0,0,0,0.02);
+      transition: opacity 0.15s ease;
+    }
+
+    .treemap-node:hover {
+      opacity: 0.9;
+    }
+
+    .treemap-node span.node-label {
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .treemap-node span.node-val {
+      font-size: 10px;
+      font-weight: 400;
+      opacity: 0.9;
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* Decomposition Tree Component CSS */
+    .dec-tree-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .dec-node {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      margin: 4px 0;
+    }
+
+    .dec-node-content {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--accent-blue);
+      border-radius: 4px;
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .dec-node-content:hover {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .dec-node.expanded > .dec-node-content {
+      border-left-color: var(--accent-sky);
+      background-color: #f0f9ff;
+    }
+
+    .dec-node-info h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .dec-node-info span {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .dec-node-expand-icon {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .dec-children {
+      display: none;
+      flex-direction: column;
+      margin-left: 24px;
+      border-left: 1px solid var(--border-color);
+      padding-left: 12px;
+      margin-top: 4px;
+    }
+
+    .dec-node.expanded > .dec-children {
+      display: flex;
+    }
+
+    /* Product search bar input */
+    .search-bar {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      width: 180px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .filter-select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Map Popup Styling */
+    .leaflet-popup-content-wrapper {
+      background: #ffffff !important;
+      color: var(--text-main) !important;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    }
+
+    .leaflet-popup-tip {
+      background: #ffffff !important;
+    }
+
+    .map-popup-title {
+      font-weight: 600;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+      color: var(--accent-blue);
+    }
+
+    .map-popup-body {
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .map-popup-body span {
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside>
+    <div class="brand">
+      <div class="brand-logo">G</div>
+      <div class="brand-title">
+        <h1>Google Store</h1>
+        <span>Store Operations Dashboard</span>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-btn active" id="btn-funnel" onclick="switchTab('page-funnel', 'btn-funnel')">
+        <svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        Overview & Funnels
+      </button>
+      <button class="nav-btn" id="btn-geo" onclick="switchTab('page-geo', 'btn-geo')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
+        Geo & Friction
+      </button>
+      <button class="nav-btn" id="btn-category" onclick="switchTab('page-category', 'btn-category')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Category Structure
+      </button>
+      <button class="nav-btn" id="btn-product" onclick="switchTab('page-product', 'btn-product')">
+        <svg viewBox="0 0 24 24"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><polygon points="21 16 21 8 12 3 3 8 3 16 12 21 21 16"/><line x1="12" y1="21.05" x2="12" y2="12"/><line x1="3.27" y1="6.96" x2="12" y2="12.01"/><line x1="20.73" y1="6.96" x2="12" y2="12.01"/><line x1="7.5" y1="14.6" x2="16.5" y2="19.79"/></svg>
+        Product Deep-Dive
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <p>Data Analyst Project</p>
+      <p style="margin-top: 4px; font-size: 8px; opacity: 0.7;">GA Data Warehouse</p>
+    </div>
+  </aside>
+
+  <!-- MAIN DASHBOARD CONTENT AREA -->
+  <main>
+    <header>
+      <div class="header-text">
+        <h2 id="header-page-title">Traffic & Conversion Funnel Analysis</h2>
+        <p id="header-page-desc">Evaluating channel funnel conversion metrics and stage dropoffs across 21.5M rows.</p>
+      </div>
+      <div class="badge-gcp">
+        BigQuery ML Active
+      </div>
+    </header>
+
+    <!-- PAGE 1: OVERVIEW & FUNNELS -->
+    <div id="page-funnel" class="tab-page active">
+      <div class="kpi-container">
+        <div class="kpi-card">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value">$7.40M</div>
+          <div class="kpi-subtext neg">▼ 2.1% MoM Trend</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Total Orders</div>
+          <div class="kpi-value">30,417</div>
+          <div class="kpi-subtext pos">▲ 4.8% vs. Prev Period</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Conversion Rate</div>
+          <div class="kpi-value">4.56%</div>
+          <div class="kpi-subtext pos">▲ 0.15% vs. CVR Baseline</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Average Order Value</div>
+          <div class="kpi-value">$243.34</div>
+          <div class="kpi-subtext info">AOV Stable</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid-2-1">
+        <!-- Channel combo chart -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Marketing Channel Performance vs. Conversion Rate</h3>
+              <p>Total orders volume compared against unique session purchase conversion rates.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <canvas id="channel-combo-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Executive observations -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Executive Insights</h3>
+              <p>Summary of data findings.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div class="observations-list">
+              <div class="obs-item">
+                <div class="obs-content">
+                  <h4>Referral Dominates Volume</h4>
+                  <p>Referral represents the primary conversion engine, contributing 12.1K orders (>50% share of total) with a strong 12.19% CVR.</p>
+                </div>
+              </div>
+              <div class="obs-item organic">
+                <div class="obs-content">
+                  <h4>Organic Search Efficiency</h4>
+                  <p>Organic Search drives the highest overall session traffic volume (48.67% share), contributing 4,045 orders with a 1.58% CVR.</p>
+                </div>
+              </div>
+              <div class="obs-item lag">
+                <div class="obs-content">
+                  <h4>Paid/Social Budget Lag</h4>
+                  <p>Paid Search (3.62% CVR) and Social (0.42% CVR) account for less than 3% of orders. Recommend reviewing social marketing spends.</p>
+                </div>
+              </div>
+              <div class="obs-item leakage">
+                <div class="obs-content">
+                  <h4>India Funnel Leakage</h4>
+                  <p>India is the 2nd largest regional traffic source (25.3K sessions) but records only 22 orders (0.09% CVR), pointing to extreme local checkout barriers.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Funnel matrix heatmap -->
+      <div class="viz-card" style="flex: 0.6; min-height: 160px;">
+        <div class="viz-header">
+          <div class="viz-title">
+            <h3>Purchase Milestone Funnel Heatmap (%)</h3>
+            <p>Percentage of users reaching each funnel stage by acquisition channel.</p>
+          </div>
+        </div>
+        <div class="viz-body" style="overflow-y: hidden;">
+          <table class="heatmap-table">
+            <thead>
+              <tr>
+                <th style="text-align: left;">Funnel Stage</th>
+                <th>Referral</th>
+                <th>Direct</th>
+                <th>Organic Search</th>
+                <th>Paid Search</th>
+                <th>Display</th>
+                <th>Social</th>
+                <th>Affiliates</th>
+                <th>Other</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="stage-label">1. Product Click</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+              </tr>
+              <tr>
+                <td class="stage-label">2. Product View</td>
+                <td style="background-color: rgba(59, 130, 246, 0.24);">99.94%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.24);">99.71%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.24);">99.89%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.24);">99.97%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.22);">97.82%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.24);">99.95%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.25);">100.00%</td>
+              </tr>
+              <tr>
+                <td class="stage-label">3. Add to Cart</td>
+                <td style="background-color: rgba(59, 130, 246, 0.14);">56.85%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.13);">54.20%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.08);">36.20%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.09);">38.59%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.09);">39.58%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.08);">36.72%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.10);">41.81%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.05);">25.00%</td>
+              </tr>
+              <tr>
+                <td class="stage-label">4. Checkout Init</td>
+                <td style="background-color: rgba(59, 130, 246, 0.08);">36.39%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.07);">31.83%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.02);">13.67%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.03);">16.09%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.04);">18.56%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.01);">9.73%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.005);">7.29%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.03);">15.00%</td>
+              </tr>
+              <tr>
+                <td class="stage-label">5. Completed Purchase</td>
+                <td style="background-color: rgba(59, 130, 246, 0.05);">25.40%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.04);">20.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.005);">5.93%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.015);">10.00%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.025);">11.42%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.001);">3.23%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.0001);">0.49%</td>
+                <td style="background-color: rgba(59, 130, 246, 0.005);">5.00%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: GEOGRAPHICAL & FRICTION -->
+    <div id="page-geo" class="tab-page">
+      <div class="dashboard-grid-3-column">
+        <!-- Interactive Leaflet Map -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Global Sales & Friction Hotspots Map</h3>
+              <p>Bubble size indicates orders volume; red denotes high shipping cost friction.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div id="country-map"></div>
+          </div>
+        </div>
+
+        <!-- Country cost table -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Geographical Cost Breakdown</h3>
+              <p>Key country order value metrics and shipping/tax friction shares.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div class="table-container">
+              <table class="data-grid" id="geo-data-table">
+                <thead>
+                  <tr>
+                    <th>Country</th>
+                    <th style="text-align: right;">Orders</th>
+                    <th style="text-align: right;">AOV ($)</th>
+                    <th style="text-align: right;">Friction (%)</th>
+                  </tr>
+                </thead>
+                <tbody id="geo-table-body">
+                  <!-- Javascript will populate this -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clustered pipeline bar chart -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>US vs. India Checkout Pipeline</h3>
+              <p>Highlights the immense funnel leakage for Indian traffic segments compared to US baselines.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <canvas id="pipeline-chart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: CATEGORY DECOMPOSITION -->
+    <div id="page-category" class="tab-page">
+      <div class="dashboard-grid-1-1">
+        <!-- Treemap Category grid -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Revenue Share by Product Category</h3>
+              <p>Visualizing total revenue size contributions across store catalogs.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div class="treemap-container" id="treemap-grid">
+              <!-- Render Treemap items dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Decomposition Tree -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Interactive Category Decomposition Tree</h3>
+              <p>Click on nodes to drill down and collapse the hierarchy levels.</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div class="dec-tree-container" id="decomp-tree">
+              <!-- Render Decomposition Tree dynamically in JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: PRODUCT PERFORMANCE -->
+    <div id="page-product" class="tab-page">
+      <div class="dashboard-grid-2-1" style="grid-template-columns: 1fr 1.2fr;">
+        <!-- Scatter plot -->
+        <div class="viz-card">
+          <div class="viz-header">
+            <div class="viz-title">
+              <h3>Product Performance Scatter Matrix</h3>
+              <p>Confirmed order sessions (X-Axis) vs. Average units purchased per session (Y-Axis).</p>
+            </div>
+          </div>
+          <div class="viz-body">
+            <canvas id="product-scatter-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Product Table -->
+        <div class="viz-card">
+          <div class="viz-header" style="flex-wrap: wrap; gap: 8px;">
+            <div class="viz-title">
+              <h3>Store Catalog Analytics</h3>
+              <p>Deduplicated item records indicating price points, volume sales, and item depth.</p>
+            </div>
+            <div class="search-bar">
+              <input type="text" class="search-input" id="prod-search" placeholder="Search product..." oninput="filterProducts()">
+              <select class="filter-select" id="price-filter" onchange="filterProducts()">
+                <option value="all">All Prices</option>
+                <option value="low">Under $5</option>
+                <option value="medium">$5 - $20</option>
+                <option value="high">Above $20</option>
+              </select>
+            </div>
+          </div>
+          <div class="viz-body">
+            <div class="table-container">
+              <table class="data-grid" id="product-grid">
+                <thead>
+                  <tr>
+                    <th onclick="sortProducts('name')" style="cursor: pointer;">Product ↕</th>
+                    <th onclick="sortProducts('price')" style="text-align: right; cursor: pointer;">Price ↕</th>
+                    <th onclick="sortProducts('sessions')" style="text-align: right; cursor: pointer;">Sessions ↕</th>
+                    <th onclick="sortProducts('units')" style="text-align: right; cursor: pointer;">Sold ↕</th>
+                    <th onclick="sortProducts('depth')" style="text-align: right; cursor: pointer;">Depth ↕</th>
+                  </tr>
+                </thead>
+                <tbody id="product-table-body">
+                  <!-- Javascript will populate -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // Tab switching controller
+    function switchTab(pageId, btnId) {
+      // Hide all pages
+      document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+      // Remove active class from buttons
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+      
+      // Show selected page
+      document.getElementById(pageId).classList.add('active');
+      document.getElementById(btnId).classList.add('active');
+
+      // Update header headings
+      const hTitle = document.getElementById('header-page-title');
+      const hDesc = document.getElementById('header-page-desc');
+      
+      if (pageId === 'page-funnel') {
+        hTitle.textContent = "Traffic & Conversion Funnel Analysis";
+        hDesc.textContent = "Evaluating channel funnel conversion metrics and stage dropoffs across 21.5M rows.";
+      } else if (pageId === 'page-geo') {
+        hTitle.textContent = "Geographical Friction & Fee Leakages";
+        hDesc.textContent = "Tracing regional order volume, shipping fee costs, and checkout conversion dropoffs.";
+        setTimeout(() => { map.invalidateSize(); }, 200); // Redraw Leaflet map to prevent alignment errors
+      } else if (pageId === 'page-category') {
+        hTitle.textContent = "Product Category Tree Decomposition";
+        hDesc.textContent = "Drilling down the store catalog database to category/subcategory revenue shares.";
+      } else if (pageId === 'page-product') {
+        hTitle.textContent = "Individual Product Performance Matrix";
+        hDesc.textContent = "Mapping purchase counts, prices, total quantities, and order depths.";
+      }
+    }
+
+    // ==========================================
+    // DATASETS
+    // ==========================================
+
+    const channelData = {
+      labels: ['Referral', 'Direct', 'Organic Search', 'Paid Search', 'Display', 'Social', 'Affiliates', '(Other)'],
+      orders: [12150, 6765, 4045, 574, 195, 175, 10, 1],
+      cvr: [12.19, 6.72, 1.58, 3.62, 4.24, 0.42, 0.14, 1.28]
+    };
+
+    const countryData = [
+      { name: "United States", orders: 22870, aov: 191.23, friction: 3.56, lat: 37.0902, lng: -95.7129 },
+      { name: "Canada", orders: 485, aov: 250.38, friction: 1.92, lat: 56.1304, lng: -106.3468 },
+      { name: "Venezuela", orders: 67, aov: 568.91, friction: 59.46, lat: 6.4238, lng: -66.5897 },
+      { name: "Taiwan", orders: 32, aov: 141.56, friction: 0.00, lat: 23.6978, lng: 120.9605 },
+      { name: "United Kingdom", orders: 30, aov: 175.10, friction: 6.08, lat: 55.3781, lng: -3.4360 },
+      { name: "Mexico", orders: 29, aov: 112.72, friction: 0.00, lat: 23.6345, lng: -102.5528 },
+      { name: "Singapore", orders: 25, aov: 197.84, friction: 0.39, lat: 1.3521, lng: 103.8198 },
+      { name: "Japan", orders: 24, aov: 342.09, friction: 9.90, lat: 36.2048, lng: 138.2529 },
+      { name: "Brazil", orders: 24, aov: 175.06, friction: 0.00, lat: -14.2350, lng: -51.9253 },
+      { name: "Australia", orders: 23, aov: 208.32, friction: 3.11, lat: -25.2744, lng: 133.7751 },
+      { name: "India", orders: 22, aov: 132.89, friction: 0.00, lat: 20.5937, lng: 78.9629 },
+      { name: "Ireland", orders: 21, aov: 144.09, friction: 3.93, lat: 53.4129, lng: -8.2439 },
+      { name: "Indonesia", orders: 12, aov: 252.59, friction: 25.26, lat: -0.7893, lng: 113.9213 }
+    ];
+
+    const categoryData = [
+      { name: "Nest-USA", rev: 2583697.87, share: 36.14, color: "#2563eb", sizeClass: "grid-column: span 6; grid-row: span 2;" },
+      { name: "Apparel", rev: 974341.95, share: 13.63, color: "#4b5563", sizeClass: "grid-column: span 4; grid-row: span 2;" },
+      { name: "Office", rev: 784525.50, share: 10.97, color: "#10b981", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Drinkware", rev: 595732.61, share: 8.33, color: "#f59e0b", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Bags", rev: 433332.55, share: 6.06, color: "#ec4899", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Lifestyle", rev: 421206.19, share: 5.89, color: "#8b5cf6", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Electronics", rev: 365808.57, share: 5.12, color: "#14b8a6", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Headgear", rev: 202095.99, share: 2.83, color: "#6366f1", sizeClass: "grid-column: span 2; grid-row: span 1;" },
+      { name: "Notebooks", rev: 191205.38, share: 2.67, color: "#6b7280", sizeClass: "grid-column: span 2; grid-row: span 1;" }
+    ];
+
+    const productData = [
+      { name: "Maze Pen", price: 0.99, sessions: 360, units: 17983, depth: 49.95 },
+      { name: "Ballpoint Pen Blue", price: 0.99, sessions: 163, units: 6714, depth: 41.19 },
+      { name: "Retractable Ballpoint Pen Red", price: 1.25, sessions: 91, units: 2513, depth: 27.62 },
+      { name: "Galaxy Screen Cleaning Cloth", price: 1.99, sessions: 186, units: 5114, depth: 27.49 },
+      { name: "Google 22 oz Water Bottle", price: 2.99, sessions: 606, units: 16221, depth: 26.77 },
+      { name: "PaperMate Ink Joy Retractable Pen", price: 1.25, sessions: 11, units: 275, depth: 25.00 },
+      { name: "Koozie Can Cooler", price: 1.99, sessions: 20, units: 491, depth: 24.55 },
+      { name: "Recycled Paper Journal Set", price: 18.99, sessions: 330, units: 8081, depth: 24.49 },
+      { name: "Color Changing Grip Pen", price: 1.50, sessions: 202, units: 4697, depth: 23.25 },
+      { name: "1 oz Hand Sanitizer", price: 1.99, sessions: 209, units: 4579, depth: 21.91 },
+      { name: "Rainbow Stylus Pen", price: 1.50, sessions: 96, units: 2087, depth: 21.74 },
+      { name: "22 oz Mini Mountain Bottle", price: 2.99, sessions: 36, units: 770, depth: 21.39 },
+      { name: "YouTube Hard Cover Journal", price: 14.99, sessions: 50, units: 1067, depth: 21.34 },
+      { name: "Google Spiral Journal with Pen", price: 9.99, sessions: 94, units: 2002, depth: 21.30 },
+      { name: "Google Ballpoint Pen Black", price: 1.99, sessions: 120, units: 2362, depth: 19.68 },
+      { name: "SPF-15 Slim & Slender Lip Balm", price: 18.99, sessions: 132, units: 2582, depth: 19.56 },
+      { name: "Google Metallic Notebook Set", price: 5.99, sessions: 292, units: 5552, depth: 19.01 },
+      { name: "Compact Journal with Recycled Pages", price: 3.50, sessions: 37, units: 687, depth: 18.57 },
+      { name: "Ballpoint LED Light Pen", price: 2.50, sessions: 169, units: 3132, depth: 18.53 },
+      { name: "Google Sunglasses", price: 3.50, sessions: 659, units: 11526, depth: 17.49 },
+      { name: "Reusable Shopping Bag", price: 3.50, sessions: 162, units: 2694, depth: 16.63 },
+      { name: "Google Kick Ball", price: 18.99, sessions: 308, units: 5034, depth: 16.34 },
+      { name: "Stadium Cups-Sets of 4", price: 4.99, sessions: 16, units: 250, depth: 15.63 },
+      { name: "Sport Bag", price: 4.99, sessions: 330, units: 5093, depth: 15.43 },
+      { name: "Google Hard Cover Journal", price: 14.99, sessions: 125, units: 1868, depth: 14.94 },
+      { name: "Recycled Mouse Pad", price: 1.50, sessions: 389, units: 5671, depth: 14.58 },
+      { name: "Badge Holder", price: 1.99, sessions: 345, units: 4804, depth: 13.92 },
+      { name: "Leatherette Journal", price: 10.99, sessions: 312, units: 4193, depth: 13.44 }
+    ];
+
+    let sortedProducts = [...productData];
+    let sortColumn = 'sessions';
+    let sortAsc = false;
+
+    // ==========================================
+    // PAGE 1: CHARTS INITIALIZATION
+    // ==========================================
+
+    const comboCtx = document.getElementById('channel-combo-chart').getContext('2d');
+    new Chart(comboCtx, {
+      type: 'bar',
+      data: {
+        labels: channelData.labels,
+        datasets: [
+          {
+            label: 'Orders Volume',
+            data: channelData.orders,
+            backgroundColor: '#93c5fd',
+            borderColor: '#2563eb',
+            borderWidth: 1,
+            yAxisID: 'yOrders',
+            order: 2
+          },
+          {
+            label: 'Conversion Rate (%)',
+            data: channelData.cvr,
+            type: 'line',
+            borderColor: '#4f46e5',
+            borderWidth: 2,
+            pointBackgroundColor: '#4f46e5',
+            fill: false,
+            tension: 0.2,
+            yAxisID: 'yCvr',
+            order: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: { color: 'var(--text-main)', font: { family: 'Inter', size: 11 } }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } }
+          },
+          yOrders: {
+            type: 'linear',
+            position: 'left',
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } },
+            title: { display: true, text: 'Order Count', color: 'var(--text-muted)', font: { size: 11 } }
+          },
+          yCvr: {
+            type: 'linear',
+            position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: {
+              color: 'var(--text-muted)',
+              font: { family: 'Inter', size: 10 },
+              callback: value => value + '%'
+            },
+            title: { display: true, text: 'CVR %', color: 'var(--text-muted)', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // ==========================================
+    // PAGE 2: CHARTS, MAPS & TABLES
+    // ==========================================
+
+    // Initialize Leaflet Map (Light Tiles)
+    const map = L.map('country-map').setView([15, 10], 1);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors &copy; <a href=\"https://carto.com/attributions\">CARTO</a>',
+      maxZoom: 20
+    }).addTo(map);
+
+    // Add country circles to map
+    countryData.forEach(country => {
+      const rad = Math.sqrt(country.orders) * 15000 + 40000;
+      let circleColor = 'var(--accent-blue)';
+      
+      if (country.friction > 20) {
+        circleColor = 'var(--accent-rose)'; 
+      } else if (country.name === 'India') {
+        circleColor = 'var(--accent-purple)'; 
+      }
+
+      const circle = L.circle([country.lat, country.lng], {
+        color: circleColor,
+        fillColor: circleColor,
+        fillOpacity: 0.35,
+        radius: rad,
+        weight: 1.5
+      }).addTo(map);
+
+      circle.bindPopup(`
+        <div class="map-popup-title">${country.name}</div>
+        <div class="map-popup-body">
+          <p><span>Confirmed Orders:</span> ${country.orders.toLocaleString()}</p>
+          <p><span>Avg Basket Value:</span> $${country.aov.toFixed(2)}</p>
+          <p><span>Fee Cost Friction:</span> ${country.friction.toFixed(2)}%</p>
+        </div>
+      `);
+    });
+
+    // Populate Geo Table
+    const geoTableBody = document.getElementById('geo-table-body');
+    countryData.forEach(country => {
+      const row = document.createElement('tr');
+      
+      let badgeStyle = '';
+      if (country.friction > 20) {
+        badgeStyle = 'style="color: var(--accent-rose); font-weight:600;"';
+      } else if (country.name === 'India') {
+        badgeStyle = 'style="color: var(--accent-purple); font-weight:600;"';
+      }
+
+      row.innerHTML = `
+        <td>${country.name}</td>
+        <td style="text-align: right;">${country.orders.toLocaleString()}</td>
+        <td style="text-align: right;">$${country.aov.toFixed(2)}</td>
+        <td style="text-align: right;" ${badgeStyle}>${country.friction.toFixed(2)}%</td>
+      `;
+      geoTableBody.appendChild(row);
+    });
+
+    // US vs India pipeline chart
+    const pipeCtx = document.getElementById('pipeline-chart').getContext('2d');
+    new Chart(pipeCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Session Start', 'Product View', 'Add to Cart', 'Completed Order'],
+        datasets: [
+          {
+            label: 'United States Sessions',
+            data: [306527, 115939, 57827, 22870],
+            backgroundColor: '#93c5fd',
+            borderColor: '#2563eb',
+            borderWidth: 1
+          },
+          {
+            label: 'India Sessions',
+            data: [25367, 5130, 2169, 22],
+            backgroundColor: '#fed7aa',
+            borderColor: '#ea580c',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: 'var(--text-main)', font: { family: 'Inter', size: 11 } } }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } }
+          },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } },
+            title: { display: true, text: 'Sessions Count', color: 'var(--text-muted)', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // ==========================================
+    // PAGE 3: TREEMAP & DECOMPOSITION
+    // ==========================================
+
+    // Treemap layout generation
+    const treemapGrid = document.getElementById('treemap-grid');
+    categoryData.forEach(cat => {
+      const node = document.createElement('div');
+      node.className = 'treemap-node';
+      node.style.cssText = `${cat.sizeClass} background-color: ${cat.color};`;
+      node.innerHTML = `
+        <span class="node-label">${cat.name}</span>
+        <span class="node-val">$${(cat.rev / 1000).toFixed(0)}K (${cat.share}%)</span>
+      `;
+      treemapGrid.appendChild(node);
+    });
+
+    // Decomposition Tree visual logic
+    const treeData = {
+      name: "Total Store Revenue",
+      value: "$7,401,813.43",
+      orders: "30,417 orders",
+      children: [
+        {
+          name: "Nest-USA",
+          value: "$2,583,697.87",
+          orders: "11,142 orders",
+          children: [
+            { name: "Thermostats & Cameras", value: "$2,581,433.53", orders: "N/A" },
+            { name: "Replacement Items", value: "$2,264.34", orders: "N/A" }
+          ]
+        },
+        {
+          name: "Apparel",
+          value: "$974,341.95",
+          orders: "6,961 orders",
+          children: [
+            { name: "Kid's Clothing", value: "$32,153.82", orders: "N/A" },
+            { name: "Men's Outerwear", value: "$16,032.75", orders: "N/A" },
+            { name: "Women's Outerwear", value: "$16,032.75", orders: "N/A" },
+            { name: "Apparel Headgear", value: "$8,257.80", orders: "N/A" },
+            { name: "Wearables General", value: "$155.00", orders: "N/A" }
+          ]
+        },
+        {
+          name: "Office Accessories",
+          value: "$784,525.50",
+          orders: "3,151 orders",
+          children: [
+            { name: "Writing Instruments", value: "$16,032.75", orders: "N/A" },
+            { name: "Notebooks & Organizers", value: "$16,032.75", orders: "N/A" },
+            { name: "General Office", value: "$6,252.75", orders: "N/A" }
+          ]
+        },
+        {
+          name: "Drinkware",
+          value: "$595,732.61",
+          orders: "2,387 orders",
+          children: [
+            { name: "Water Bottles & Tumblers", value: "$8,257.80", orders: "N/A" },
+            { name: "Mugs & Cups", value: "$4,274.00", orders: "N/A" },
+            { name: "Clearance Drinkware", value: "$1,352.53", orders: "N/A" }
+          ]
+        },
+        {
+          name: "Bags & Luggage",
+          value: "$433,332.55",
+          orders: "1,359 orders",
+          children: [
+            { name: "Backpacks", value: "$31,771.65", orders: "N/A" },
+            { name: "Messenger Bags", value: "$23,607.66", orders: "N/A" }
+          ]
+        }
+      ]
+    };
+
+    function renderDecompNode(nodeData) {
+      const nodeEl = document.createElement('div');
+      nodeEl.className = 'dec-node';
+      
+      const hasChildren = nodeData.children && nodeData.children.length > 0;
+      
+      nodeEl.innerHTML = `
+        <div class="dec-node-content">
+          <div class="dec-node-info">
+            <h4>${nodeData.name}</h4>
+            <span>${nodeData.value} | ${nodeData.orders}</span>
+          </div>
+          ${hasChildren ? `<div class="dec-node-expand-icon">+</div>` : ''}
+        </div>
+      `;
+
+      if (hasChildren) {
+        const childrenEl = document.createElement('div');
+        childrenEl.className = 'dec-children';
+        nodeData.children.forEach(child => {
+          childrenEl.appendChild(renderDecompNode(child));
+        });
+        nodeEl.appendChild(childrenEl);
+
+        const contentBtn = nodeEl.querySelector('.dec-node-content');
+        const icon = nodeEl.querySelector('.dec-node-expand-icon');
+        
+        contentBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          nodeEl.classList.toggle('expanded');
+          icon.textContent = nodeEl.classList.contains('expanded') ? '−' : '+';
+        });
+      }
+
+      return nodeEl;
+    }
+
+    const decompTreeContainer = document.getElementById('decomp-tree');
+    decompTreeContainer.appendChild(renderDecompNode(treeData));
+
+    // ==========================================
+    // PAGE 4: PRODUCT SCATTER & GRID
+    // ==========================================
+
+    // Chart.js Product Scatter Plot
+    const scatterCtx = document.getElementById('product-scatter-chart').getContext('2d');
+    const scatterChart = new Chart(scatterCtx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Products',
+          data: productData.map(p => ({ x: p.sessions, y: p.depth, label: p.name, price: p.price })),
+          backgroundColor: 'rgba(37, 99, 235, 0.65)',
+          borderColor: 'var(--accent-blue)',
+          borderWidth: 1,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => {
+                const item = ctx.raw;
+                return `${item.label} (Price: $${item.price.toFixed(2)}, Sessions: ${item.x}, Avg Qty: ${item.y})`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } },
+            title: { display: true, text: 'Confirmed Order Sessions', color: 'var(--text-muted)', font: { size: 11 } }
+          },
+          y: {
+            grid: { color: '#f1f5f9' },
+            ticks: { color: 'var(--text-muted)', font: { family: 'Inter', size: 10 } },
+            title: { display: true, text: 'Average Units per Session (Depth)', color: 'var(--text-muted)', font: { size: 11 } }
+          }
+        }
+      }
+    });
+
+    // Search and filter functions for Product Table
+    function renderProductTable(data) {
+      const tbody = document.getElementById('product-table-body');
+      tbody.innerHTML = '';
+      data.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="font-weight: 550;">${p.name}</td>
+          <td style="text-align: right;">$${p.price.toFixed(2)}</td>
+          <td style="text-align: right;">${p.sessions.toLocaleString()}</td>
+          <td style="text-align: right;">${p.units.toLocaleString()}</td>
+          <td style="text-align: right;">${p.depth.toFixed(2)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function filterProducts() {
+      const search = document.getElementById('prod-search').value.toLowerCase();
+      const priceFilter = document.getElementById('price-filter').value;
+
+      let filtered = productData.filter(p => p.name.toLowerCase().includes(search));
+
+      if (priceFilter === 'low') {
+        filtered = filtered.filter(p => p.price < 5.0);
+      } else if (priceFilter === 'medium') {
+        filtered = filtered.filter(p => p.price >= 5.0 && p.price <= 20.0);
+      } else if (priceFilter === 'high') {
+        filtered = filtered.filter(p => p.price > 20.0);
+      }
+
+      sortedProducts = filtered;
+      sortDataGrid();
+    }
+
+    function sortProducts(col) {
+      if (sortColumn === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortColumn = col;
+        sortAsc = false;
+      }
+      sortDataGrid();
+    }
+
+    function sortDataGrid() {
+      sortedProducts.sort((a, b) => {
+        let valA, valB;
+        if (sortColumn === 'name') {
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+        } else if (sortColumn === 'price') {
+          valA = a.price;
+          valB = b.price;
+        } else if (sortColumn === 'sessions') {
+          valA = a.sessions;
+          valB = b.sessions;
+        } else if (sortColumn === 'units') {
+          valA = a.units;
+          valB = b.units;
+        } else if (sortColumn === 'depth') {
+          valA = a.depth;
+          valB = b.depth;
+        }
+
+        if (valA < valB) return sortAsc ? -1 : 1;
+        if (valA > valB) return sortAsc ? 1 : -1;
+        return 0;
+      });
+      renderProductTable(sortedProducts);
+    }
+
+    // Initial render
+    sortDataGrid();
+  </script>
+</body>
+</html>
