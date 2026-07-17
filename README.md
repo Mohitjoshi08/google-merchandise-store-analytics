@@ -51,13 +51,13 @@ graph TD
 ### 1. The Marketing Channel Efficiency Matrix
 * **Referrals Drive the Volume**: Referral channels account for **>50% of total store checkouts** (12,150 orders) and convert at an extremely high session conversion rate (**12.19%**).
 * **Organic Search Traffic Bloat**: While Organic Search represents the largest traffic driver (**48.67% share of sessions**), it yields a lower conversion rate (**1.58% CVR**), pointing to high top-of-funnel browsing but weak purchasing intent.
-* **Paid/Social Spends Lag**: Paid Search (3.62% CVR) and Social (0.42% CVR) capture under 3% of combined orders. Recommend evaluating budget allocations on social media advertising.
+* **Paid/Social Spends Lag**: Paid Search (3.62% CVR) and Social (0.42% CVR) capture approximately **3%** of combined orders. Recommend evaluating budget allocations on social media advertising.
 
 ### 2. Funnel Friction & Dropoff (The "India Leakage")
 * **The Anomaly**: Visitors from India represent the **2nd largest regional traffic segment** (25,367 sessions) but result in only **22 completed orders** (an extremely low **0.09% CVR**). By contrast, United States traffic converts at **7.46%**.
 * **Leakage Mapping**:
-  * **India Funnel**: Session Start (25.3K) ➔ Product View (5,130) = **79.77% dropoff** ➔ Add to Cart (2,169) ➔ Completed Order (22) = **98.98% dropoff**.
-  * **US Funnel**: Session Start (306K) ➔ Product View (115.9K) = **62.17% dropoff** ➔ Add to Cart (57.8K) ➔ Completed Order (22.8K) = **60.45% dropoff**.
+  * **India Funnel**: Session Start (25.3K) ➔ Product View (5,130) = **79.78% dropoff** ➔ Add to Cart (2,169) ➔ Completed Order (22) = **98.99% dropoff**.
+  * **US Funnel**: Session Start (306K) ➔ Product View (115.9K) = **62.18% dropoff** ➔ Add to Cart (57.8K) ➔ Completed Order (22.8K) = **60.45% dropoff**.
 * **Recommendation**: Indian users are highly motivated to click and add items to the cart, but drop off completely during final payment. This highlights local payment processing bottlenecks, lack of localized payment choices (e.g. UPI), or tax calculation hurdles at checkout.
 
 ### 3. Geographical Fee Friction Barriers
