@@ -94,7 +94,7 @@ This model allows the e-commerce store to flag high-propensity sessions in real-
 
 ### 🖥️ Power BI & Interactive Dashboard
 > [!NOTE]
-> **Power BI Dashboard Status**: 🛠️ Under Construction (Uploading tomorrow, July 18).
+> **Power BI Dashboard Status**: 🛠️ Under Construction (Uploading shortly).
 >
 > In the meantime, you can open the interactive **[dashboard.html](dashboard.html)** in any web browser. It is a custom-built, premium replica that replicates the exact layouts, styling, metrics, and chart placements of the 4-page Power BI dashboard.
 
