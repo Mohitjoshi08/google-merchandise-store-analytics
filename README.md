@@ -1,6 +1,8 @@
 # Google Merchandise Store: End-to-End E-Commerce Data Warehouse & Analytics Pipeline
 **An Advanced Portfolio-Level Business & Data Analytics Project**
 
+🌐 **[Live Interactive Dashboard (Netlify Preview)](https://dashboard-google-merchandise.netlify.app/)**
+
 This project demonstrates a comprehensive, end-to-end analytics workflow using **Google Cloud Platform (BigQuery)**, **Python (BigFrames & Pandas)**, **SQL Analytics Engineering**, and interactive data visualization. 
 
 We analyze a massive Google Analytics dataset containing **21,493,109 user session records** from the Google Merchandise Store to discover funnel leakage, geographical friction anomalies, channel efficiencies, and predict customer purchase propensity.
@@ -31,8 +33,7 @@ The data warehouse is structured into three clear architectural layers:
    * **`DimProduct`**: Splits category and subcategory hierarchies.
    * **`DimCountry`**: Normalizes geographic coordinates and regional parameters.
    * **`DimDate`**: Structures year, month, day, and day-of-week keys.
-4. **Exploratory Data Analysis**: Jupyter Notebook [exploration.ipynb](exploration.ipynb) leveraging GCP **BigFrames** for in-database Python execution.
-5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) mirroring the layout of a 5-page Power BI dashboard (featuring a newly added Executive & ML propensity page). *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
+5. **Business Intelligence Visualization**: A premium, self-contained interactive dashboard [dashboard.html](dashboard.html) (Live Web Preview: **[dashboard-google-merchandise.netlify.app](https://dashboard-google-merchandise.netlify.app/)**) mirroring the layout of a 5-page Power BI dashboard (featuring a newly added Executive & ML propensity page). *(Note: The direct Power BI `.pbix` file is currently under final deployment and will be pushed here shortly. Until then, use the HTML dashboard to preview the exact design and functionality).*
 
 ---
 
@@ -140,10 +141,12 @@ Based on the data warehouse findings, we propose five key business strategies to
 > [!NOTE]
 > **Power BI Dashboard Status**: 🛠️ Under Construction (Uploading shortly).
 >
-> In the meantime, you can open the interactive **[dashboard.html](dashboard.html)** in any web browser. It is a custom-built, premium replica that replicates the exact layouts, styling, metrics, and chart placements of the 4-page Power BI dashboard.
+> In the meantime, you can access the **[Live Netlify Dashboard Preview](https://dashboard-google-merchandise.netlify.app/)** directly in your web browser. It is a custom-built, premium replica that replicates the exact layouts, styling, metrics, and chart placements of the 5-page Power BI dashboard.
+> 
+> Alternatively, you can open the local **[dashboard.html](dashboard.html)** file in any web browser.
 
-* **How to run HTML dashboard**: Simply double-click [dashboard.html](dashboard.html) to open in any browser (no local server or database setup required).
-* **Interactions**: Toggle between tabs to inspect **Overview & Channel Funnels**, **Geographical Maps** (with Leaflet interactive popups), **Category Decomposition Trees** (with click-expandable nodes), and a searchable **Product Catalog**.
+* **How to run HTML dashboard locally**: Simply double-click [dashboard.html](dashboard.html) to open in any browser (no local server or database setup required).
+* **Interactions**: Toggle between tabs to inspect **Overview & Channel Funnels**, **Geographical Maps** (with Leaflet interactive popups), **Category Decomposition Trees** (with click-expandable nodes), **Product Catalog**, and **Executive & ML Insights**.
 
 ### 2. Running Python BigFrames Notebook
 Ensure you have Python installed, then:
