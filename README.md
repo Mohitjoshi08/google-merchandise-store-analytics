@@ -39,7 +39,7 @@ graph TD
 │   ├── page_exit_analysis.sql          # Exits share & URL dropping point analysis
 │   └── bqml_propensity_model.sql       # Logistic regression model training, eval & predictions
 ├── exploration.ipynb                   # Advanced BigFrames notebook for python EDA
-├── dashboard.html                      # Interactive dark-theme dashboard (Leaflet + Chart.js)
+├── dashboard.html                      # Interactive light-theme dashboard (Leaflet + Chart.js)
 ├── README.md                           # Project documentation & business insights
 └── valid-keep-465517-q8-xxx.json       # BQ Service account key (secured)
 ```
