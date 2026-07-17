@@ -6,7 +6,7 @@
 ---
 
 ## 📈 Project Scale & Complexity
-* **21.4M+** web hits processed
+* **21.5M+** web hits processed
 * **419.1M+** total pageviews analyzed
 * **389K+** unique visitor records
 * **1** Fact Table (`FactSales`) and **4** Dimension Tables (`DimCustomer`, `DimProduct`, `DimCountry`, `DimDate`)
