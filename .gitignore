@@ -1,0 +1,17 @@
+# Google Cloud Service Account Credentials (CRITICAL SECURITY)
+valid-keep-465517-q8-32a662053b22.json
+*.json
+
+# Python & Jupyter notebooks cache
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+
+# Local configuration / logs
+*.log
+.env
+.venv/
+env/
+venv/
+ENV/

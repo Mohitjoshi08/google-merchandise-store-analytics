@@ -1,14 +1,6 @@
--- =====================================================================================
--- ANALYSIS: BigQuery ML (BQML) - Customer Purchase Propensity Prediction Model
--- BUSINESS PURPOSE: Train a logistic regression model directly within BigQuery to predict
---                   whether a visitor session will result in a transaction based on
---                   session engagement metrics. This enables personalized cart targeting.
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions`
--- TECH STACK: BigQuery ML (Logistic Regression, Classification Metrics)
--- =====================================================================================
+-- Logistic regression model to predict purchase propensity in BigQuery ML
 
--- STEP 1: CREATE OR REPLACE THE MODEL
--- Trains a binary logistic regression model to predict the 'label' (0 or 1).
+-- 1. Model Training
 CREATE OR REPLACE MODEL `valid-keep-465517-q8.ecommerce.purchase_propensity_model`
 OPTIONS(
   model_type='logistic_reg',
@@ -16,26 +8,22 @@ OPTIONS(
   data_split_method='AUTO_SPLIT'
 ) AS
 SELECT
-  -- The Label: 1 if user completed purchase (transactionId is not null), else 0
+  -- Purchase label: 1 if transaction completed, else 0
   IF(transactionId IS NOT NULL, 1, 0) AS label,
   
-  -- The Features: Session behavior & demographics
+  -- Features representing session behavior, demographics, and temporal context
   channelGrouping,
   country,
   IFNULL(pageviews, 0) AS pageviews,
   IFNULL(timeOnSite, 0) AS timeOnSite,
   IFNULL(sessionQualityDim, 0) AS session_quality_score,
-  
-  -- Temporal features extracted from date
   EXTRACT(DAYOFWEEK FROM PARSE_DATE('%Y%m%d', date)) AS day_of_week,
   EXTRACT(HOUR FROM TIMESTAMP_MILLIS(time)) AS hour_of_day
 FROM `data-to-insights.ecommerce.all_sessions`
--- Restrict training to actual traffic data (excluding rows with completely missing values)
 WHERE pageviews IS NOT NULL;
 
 
--- STEP 2: EVALUATE THE MODEL
--- Check classification performance metrics: Precision, Recall, Accuracy, F1-Score, ROC-AUC.
+-- 2. Model Evaluation
 /*
 SELECT *
 FROM ML.EVALUATE(MODEL `valid-keep-465517-q8.ecommerce.purchase_propensity_model`,
@@ -56,8 +44,7 @@ FROM ML.EVALUATE(MODEL `valid-keep-465517-q8.ecommerce.purchase_propensity_model
 */
 
 
--- STEP 3: PREDICT PURCHASE PROPENSITY (PROBABILITY)
--- Run predictions on a sample of sessions, filtering for high propensity customers.
+-- 3. Batch Predictions (Sample query extracting purchase probability score)
 /*
 SELECT
   unique_session_id,

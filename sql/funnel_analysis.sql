@@ -1,15 +1,9 @@
--- =====================================================================================
--- ANALYSIS: E-Commerce Conversion Funnel by Marketing Channel
--- BUSINESS PURPOSE: Identify where users drop off in the conversion funnel and compare 
---                   the efficiency of different marketing channels.
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions` (Google Analytics Dataset)
--- TECH STACK: BigQuery (CTEs, Window Functions, PIVOT)
--- =====================================================================================
+-- E-Commerce Conversion Funnel Analysis by Marketing Channel
 
 WITH session_actions AS (
-  -- Step 1: Dedup and extract unique sessions with their respective marketing channels and shopping actions.
-  -- Actions mapping: 0 = Unknown/Click-through, 1 = Product View, 2 = Add to Cart, 3 = Remove from Cart,
-  --                  4 = Checkout, 5 = Completed Purchase
+  -- Extract unique sessions, marketing channels, and shopping action types
+  -- Actions mapping: 0 = Unknown/Click-through, 1 = Product View, 2 = Add to Cart, 
+  --                  3 = Remove from Cart, 4 = Checkout, 5 = Completed Purchase
   SELECT DISTINCT
     channelGrouping,
     CONCAT(fullVisitorId, '_', visitId) AS unique_session_id,
@@ -19,7 +13,7 @@ WITH session_actions AS (
 ),
 
 channel_totals AS (
-  -- Step 2: Establish the baseline volume (total unique sessions) for each marketing channel.
+  -- Calculate baseline volume (total unique sessions) per channel
   SELECT 
     channelGrouping,
     COUNT(DISTINCT unique_session_id) AS total_channel_sessions
@@ -28,7 +22,7 @@ channel_totals AS (
 ),
 
 action_counts AS (
-  -- Step 3: Count unique sessions reaching each specific stage in the purchase funnel per channel.
+  -- Count unique sessions reaching each specific funnel stage per channel
   SELECT 
     channelGrouping,
     eCommerceAction_type,
@@ -38,8 +32,7 @@ action_counts AS (
 ),
 
 funnel_rates AS (
-  -- Step 4: Compute the conversion percentage for each funnel stage relative to the channel's total sessions.
-  -- This provides a normalized view across traffic volumes of vastly different scales.
+  -- Compute the conversion percentage relative to the channel's total sessions
   SELECT 
     a.channelGrouping,
     a.eCommerceAction_type,
@@ -51,7 +44,7 @@ funnel_rates AS (
     ON a.channelGrouping = t.channelGrouping
 )
 
--- Step 5: Final output sorted to feed the channel combo chart and matrix view.
+-- Sort the final funnel output
 SELECT 
   channelGrouping,
   eCommerceAction_type,
@@ -62,9 +55,7 @@ FROM funnel_rates
 ORDER BY channelGrouping ASC, eCommerceAction_type ASC;
 
 
--- =====================================================================================
--- OPTIMIZED PIVOT QUERY: Horizontal Funnel Comparison across Channels (Matrix View)
--- =====================================================================================
+-- Horizontal Funnel Comparison across Channels (Matrix View)
 /*
 WITH session_actions AS (
   SELECT DISTINCT

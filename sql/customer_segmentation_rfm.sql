@@ -1,20 +1,11 @@
--- =====================================================================================
--- ANALYSIS: Customer Segmentation, LTV Tiers & RFM Loyalty Model
--- BUSINESS PURPOSE: Group customers into loyalty segments (Champions, At Risk, Loyal) 
---                   based on purchasing patterns, establishing lifetime value (LTV) tiers.
--- DATA SOURCE: `valid-keep-465517-q8.ecommerce.FactSales` & `DimDate`
--- TECH STACK: BigQuery (CTEs, NTILE window functions, Case Statements)
--- =====================================================================================
+-- RFM (Recency, Frequency, Monetary) Customer Segmentation & LTV Analysis
 
 WITH customer_raw_metrics AS (
-  -- Step 1: Extract basic Recency, Frequency, and Monetary metrics for each customer
+  -- Calculate base metrics relative to dataset end date (Aug 31, 2017)
   SELECT
     customer_key,
-    -- Recency: Days since last purchase (relative to the end date of the dataset: Aug 31, 2017)
     DATE_DIFF(DATE('2017-08-31'), MAX(d.date), DAY) AS recency_days,
-    -- Frequency: Number of unique orders
     COUNT(DISTINCT transaction_id) AS frequency_orders,
-    -- Monetary: Total cumulative spending
     SUM(quantity_sold * item_price_usd) AS monetary_value_usd
   FROM `valid-keep-465517-q8.ecommerce.FactSales` f
   JOIN `valid-keep-465517-q8.ecommerce.DimDate` d
@@ -23,22 +14,22 @@ WITH customer_raw_metrics AS (
 ),
 
 rfm_scores AS (
-  -- Step 2: Assign scores from 1 to 5 for Recency, Frequency, and Monetary using NTILE
+  -- Assign scores (1 to 5) using quintiles
   SELECT
     customer_key,
     recency_days,
     frequency_orders,
     monetary_value_usd,
-    -- NTILE(5) for Recency: lower days is better, so reverse order
+    -- Recency: lower days is better (highest score for most recent)
     NTILE(5) OVER(ORDER BY recency_days DESC) AS r_score,
-    -- NTILE(5) for Frequency & Monetary: higher is better
+    -- Frequency & Monetary: higher is better
     NTILE(5) OVER(ORDER BY frequency_orders ASC) AS f_score,
     NTILE(5) OVER(ORDER BY monetary_value_usd ASC) AS m_score
   FROM customer_raw_metrics
 ),
 
 customer_segments AS (
-  -- Step 3: Segment customers based on their combined RFM scores
+  -- Define loyalty segments and LTV tiers
   SELECT
     customer_key,
     recency_days,
@@ -49,7 +40,6 @@ customer_segments AS (
     m_score,
     (r_score + f_score + m_score) / 3.0 AS avg_rfm_score,
     
-    -- Segment logic based on averages
     CASE
       WHEN r_score >= 4 AND f_score >= 4 AND m_score >= 4 THEN 'Champions'
       WHEN r_score >= 3 AND f_score >= 3 AND m_score >= 4 THEN 'Loyal Customers'
@@ -59,7 +49,6 @@ customer_segments AS (
       ELSE 'Needs Attention (General)'
     END AS customer_segment,
     
-    -- Lifetime Value (LTV) Tier segmentation
     CASE
       WHEN monetary_value_usd >= 500 THEN 'Tier 1: High LTV (>= $500)'
       WHEN monetary_value_usd >= 100 AND monetary_value_usd < 500 THEN 'Tier 2: Medium LTV ($100-$499)'
@@ -68,7 +57,7 @@ customer_segments AS (
   FROM rfm_scores
 )
 
--- Step 4: Final output displaying customer loyalty statistics
+-- Summary statistics of the customer segments
 SELECT
   customer_segment,
   ltv_tier,

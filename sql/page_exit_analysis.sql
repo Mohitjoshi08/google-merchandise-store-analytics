@@ -1,10 +1,4 @@
--- =====================================================================================
--- ANALYSIS: Page Exit Share Analysis (URL drop-offs)
--- BUSINESS PURPOSE: Locate website exit hot-spots (e.g. checkout forms or general search)
---                   to identify where UX optimizations will yield the highest conversion lift.
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions`
--- TECH STACK: BigQuery (Session Aggregations, Exits, Window Functions)
--- =====================================================================================
+-- Page Exit Share Analysis (Identify high drop-off pages)
 
 SELECT 
   pagePathLevel1 AS exit_page_path,

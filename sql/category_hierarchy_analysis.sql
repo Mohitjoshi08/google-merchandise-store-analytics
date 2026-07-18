@@ -1,18 +1,9 @@
--- =====================================================================================
--- ANALYSIS: Product Category Tree and Revenue Share Analysis
--- BUSINESS PURPOSE: Understand category and subcategory revenue contribution, mapping
---                   out the catalog hierarchy (Decomposition Tree / Treemap feeds).
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions`
--- TECH STACK: BigQuery (Deduplication, Hierarchy Splits, Window Functions)
--- =====================================================================================
+-- Product Category Tree and Revenue Contribution Analysis
 
 WITH clean_product_revenue AS (
-  -- Step 1: Parse the slash-delimited category hierarchy and normalize currency values.
+  -- Parse the slash-delimited category hierarchy and scale micro-unit currency
   SELECT 
     transactionId,
-    -- Extract levels of the category hierarchy safely using BigQuery's SPLIT.
-    -- Example: "Home/Office/Writing Instruments" becomes:
-    --          main_category = "Home", sub_category_1 = "Office", sub_category_2 = "Writing Instruments"
     SPLIT(v2ProductCategory, '/')[SAFE_OFFSET(0)] AS main_category,
     SPLIT(v2ProductCategory, '/')[SAFE_OFFSET(1)] AS sub_category_1,
     SPLIT(v2ProductCategory, '/')[SAFE_OFFSET(2)] AS sub_category_2,
@@ -24,7 +15,7 @@ WITH clean_product_revenue AS (
 ),
 
 deduped_category_revenue AS (
-  -- Step 2: Deduplicate category revenue at the finest detail per transaction.
+  -- Deduplicate categories at transaction level
   SELECT 
     main_category,
     COALESCE(sub_category_1, 'N/A') AS sub_category_1,
@@ -35,14 +26,13 @@ deduped_category_revenue AS (
   GROUP BY main_category, sub_category_1, sub_category_2, transactionId
 )
 
--- Step 3: Run aggregate sums across the entire category hierarchy.
+-- Aggregate revenue sums and shares across categories
 SELECT 
   main_category,
   sub_category_1,
   sub_category_2,
   ROUND(SUM(transaction_revenue_usd), 2) AS total_revenue_usd,
   COUNT(DISTINCT transactionId) AS total_orders,
-  -- Calculate percent contribution of this specific path toward total catalog revenue.
   ROUND(
     (SUM(transaction_revenue_usd) / SUM(SUM(transaction_revenue_usd)) OVER()) * 100, 2
   ) AS total_revenue_share_pct

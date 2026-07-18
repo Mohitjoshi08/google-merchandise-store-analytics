@@ -1,20 +1,11 @@
--- =====================================================================================
--- ANALYSIS: Geographical Performance & Fee Friction Analysis
--- BUSINESS PURPOSE: Identify high-performing countries, isolate conversion bottlenecks,
---                   and flag fee friction (shipping & tax charges) that discourage buyers.
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions`
--- TECH STACK: BigQuery (Deduplication, CTEs, Cost Ratios, Aggregations)
--- =====================================================================================
+-- Geographical Conversion Performance and Fee Friction (Shipping/Tax) Analysis
 
 WITH unique_orders AS (
-  -- Step 1: Deduplicate transaction records to ensure metrics represent exactly one row per unique order.
-  -- BigQuery's GA dataset contains multiple rows per transaction for individual item lines.
+  -- Deduplicate transactions to get correct transaction totals
   SELECT 
     country,
     transactionId,
-    -- Scale currency columns by dividing by 1,000,000 to convert micro-units to standard USD.
     MAX(totalTransactionRevenue / 1000000) AS total_revenue_usd,
-    -- Fallback to totalTransactionRevenue if transactionRevenue (product cost) is null.
     MAX(COALESCE(transactionRevenue, totalTransactionRevenue) / 1000000) AS net_product_revenue_usd
   FROM `data-to-insights.ecommerce.all_sessions`
   WHERE transactionId IS NOT NULL
@@ -22,7 +13,7 @@ WITH unique_orders AS (
 ),
 
 country_metrics AS (
-  -- Step 2: Calculate aggregate metrics (AOV, shipping/tax fees, fee ratio) for each country.
+  -- Calculate average order values, shipping/tax fees, and share percentages
   SELECT 
     country,
     COUNT(transactionId) AS true_total_orders,
@@ -37,7 +28,7 @@ country_metrics AS (
 ),
 
 traffic_counts AS (
-  -- Step 3: Establish session baseline and conversion rate per country.
+  -- Base session and transaction counts per country
   SELECT 
     country,
     COUNT(DISTINCT CONCAT(fullVisitorId, '_', visitId)) AS true_session_count,
@@ -49,8 +40,7 @@ traffic_counts AS (
   GROUP BY country
 )
 
--- Step 4: Final combined geographical report.
--- Filters for countries with at least 5 orders to remove low-sample noise.
+-- Combined geographical performance report (filter for countries with orders to reduce noise)
 SELECT 
   t.country,
   t.true_session_count,

@@ -1,29 +1,22 @@
--- =====================================================================================
--- ANALYSIS: Individual Product Sales & Scatter Metrics
--- BUSINESS PURPOSE: Evaluate item-level performance, prices, unit volumes, and average 
---                   order depth (avg units bought per single checkout session).
--- DATA SOURCE: `data-to-insights.ecommerce.all_sessions`
--- TECH STACK: BigQuery (Filtering, Aggregations, Ratios)
--- =====================================================================================
+-- Product Sales Performance and Order Depth Analysis
 
 SELECT 
   v2ProductName AS product_name,
-  -- Real product price (Google Analytics stores prices multiplied by 1,000,000 to avoid floats)
+  -- Scale product price from micro-units to USD
   ROUND(MAX(productPrice / 1000000), 2) AS single_item_price_usd,
   
-  -- Count distinct checkouts containing this product
+  -- Count distinct completed checkout sessions containing this product
   COUNT(DISTINCT CONCAT(fullVisitorId, '_', visitId)) AS confirmed_order_sessions,
   
-  -- Total number of units of this product purchased
+  -- Total number of units purchased
   SUM(productQuantity) AS total_units_sold,
   
-  -- Average product quantity purchased per order session (order depth)
+  -- Average quantity purchased per order session
   ROUND(SUM(productQuantity) / COUNT(DISTINCT CONCAT(fullVisitorId, '_', visitId)), 2) AS avg_units_per_session
 
 FROM `data-to-insights.ecommerce.all_sessions`
-WHERE eCommerceAction_type = '6' -- Focus strictly on 'Completed Purchase' actions
+WHERE eCommerceAction_type = '6' -- Completed Purchase
   AND productQuantity IS NOT NULL
 GROUP BY product_name
--- Filter out low-volume items to highlight significant product trends (Scatter plot input)
 HAVING confirmed_order_sessions > 10
 ORDER BY confirmed_order_sessions DESC;
